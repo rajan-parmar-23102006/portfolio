@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ball Impact Fountain</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #222;
+    }
+    canvas {
+      background-color: #f0f0f0;
+      display: block;
+      margin: 50px auto;
+      border: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+<canvas id="myCanvas" width="600" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let x = canvas.width / 2;
+  let y = 50;
+  let radius = 20;
+  let dy = 2;
+  let gravity = 0.5;
+  let bounce = 0.7;
+
+  let particles = [];
+
+  class Particle {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.radius = 2 + Math.random() * 2;
+      this.dx = (Math.random() - 0.5) * 6;
+      this.dy = -(Math.random() * 5 + 2);
+      this.alpha = 1;
+    }
+
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "red";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    update() {
+      this.dy += 0.2; // gravity for particles
+      this.x += this.dx;
+      this.y += this.dy;
+      this.alpha -= 0.02;
+    }
+  }
+
+  function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = "blue";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function createParticles() {
+    for (let i = 0; i < 20; i++) {
+      particles.push(new Particle(x, canvas.height - radius));
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBall();
+
+    y += dy;
+    dy += gravity;
+
+    // Bounce and trigger particles
+    if (y + radius > canvas.height) {
+      y = canvas.height - radius;
+      dy = -dy * bounce;
+
+      createParticles(); // trigger fountain effect
+    }
+
+    // Update and draw particles
+    particles = particles.filter(p => p.alpha > 0);
+    for (let p of particles) {
+      p.update();
+      p.draw();
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+</body>
+</html>
